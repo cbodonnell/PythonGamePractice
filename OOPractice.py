@@ -35,10 +35,15 @@ class Game(object):
 
     # Load data from a saved game object
     def load(self):
-        self.players = pickle.load(open(browse_for_path(), "rb")).players
-        print()
-        print("Game loaded!")
-        print()
+        if os.path.exists("saves/"):
+            self.players = pickle.load(open(browse_for_path(), "rb")).players
+            print()
+            print("Game loaded!")
+            print()
+        else:
+            print()
+            print("There are no games to load!")
+            print()
 
 # PLAYER OBJECT
 class Player(object):
