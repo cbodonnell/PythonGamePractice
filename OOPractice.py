@@ -20,7 +20,7 @@ class Game(object):
     def create_player(self):
         identification = len(self.players)
         name = input("What is the player's name?: ")
-        classification = int(input("Are they a Warrior [0], Mage [1], or Archer[2]?: "))
+        classification = int(input("Are they a Warrior [0], Mage [1], or Archer [2]?: "))
         new_player = Player(identification, name, classification)
         self.players[new_player.identification] = new_player
 
@@ -35,15 +35,10 @@ class Game(object):
 
     # Load data from a saved game object
     def load(self):
-        if os.path.exists("saves/"):
-            self.players = pickle.load(open(browse_for_path(), "rb")).players
-            print()
-            print("Game loaded!")
-            print()
-        else:
-            print()
-            print("There are no games to load!")
-            print()
+        self.players = pickle.load(open(browse_for_path(), "rb")).players
+        print()
+        print("Game loaded!")
+        print()
 
 # PLAYER OBJECT
 class Player(object):
@@ -123,7 +118,7 @@ class Player(object):
 # FIGHT OBJECT (game state)
 class Fight(object):
 
-    # Class Defaults
+    # Class defaults
     TURN = 1
 
     # INITIALIZER
@@ -149,13 +144,38 @@ class Fight(object):
     def fight_scene(self):
         fighting = True
         while fighting:
-            # TODO: Create a turn-based fight
-            print("Fight scene takes place between %s and %s."
-                  % (self.initiator.name, self.target.name))
+            # Players switch off attacking
+            if self.TURN % 2 != 0:
+                self.target.attack(self.initiator)
+            else:
+                self.initiator.attack(self.target)
+        
+            # Display current player stats and wait 1 second
+            self.initiator.stats()
+            self.target.stats()
+            time.sleep(1)
 
-            # TODO: Check if fight is still going
-            # Otherwise end fight
-            fighting = False
+            # Check if fight is still going, otherwise end and declare winner
+            # TODO: Refactor this
+            if self.initiator.current_health <= 0:
+                print()
+                print("%s won the fight!" % self.target.name)
+                print()
+                self.target.level_up()
+                fighting = False
+            elif self.target.current_health <= 0:
+                print()
+                print("%s won the fight!" % self.initiator.name)
+                print()
+                self.initiator.level_up()
+                fighting = False
+
+            # Increment turn and wait one second
+            self.TURN += 1
+
+        # Restore health of the players
+        self.initiator.current_health = self.initiator.max_health
+        self.target.current_health = self.target.max_health
 
 
 # MAIN ENTRY POINT
